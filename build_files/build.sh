@@ -2,23 +2,45 @@
 
 set -ouex pipefail
 
-### Install packages
+### Add third-party yum repos used by the package set
+cat > /etc/yum.repos.d/atim-starship.repo <<'EOF'
+[copr:starship]
+name=Copr repo for starship owned by atim
+baseurl=https://copr-be.cloud.fedoraproject.org/results/atim/starship/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+enabled=1
+gpgkey=https://copr-be.cloud.fedoraproject.org/results/atim/starship/pubkey.gpg
+EOF
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
+cat > /etc/yum.repos.d/kopia.repo <<'EOF'
+[Kopia]
+name=Kopia
+baseurl=http://packages.kopia.io/rpm/stable/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://kopia.io/signing-key
+EOF
 
-# this installs a package from fedora repos
-dnf5 install -y tmux 
+cat > /etc/yum.repos.d/varlad-zellij.repo <<'EOF'
+[copr:zellij]
+name=Copr repo for zellij owned by varlad
+baseurl=https://copr-be.cloud.fedoraproject.org/results/varlad/zellij/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+enabled=1
+gpgkey=https://copr-be.cloud.fedoraproject.org/results/varlad/zellij/pubkey.gpg
+EOF
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
+### Install packages from enabled repos
+# The package set is based on the CoreOS-derived package list, excluding personal user config.
+dnf5 install -y \
+    atuin bat chezmoi fd-find git-delta helix \
+    kopia lsd nu podman-compose ripgrep rustup \
+    starship syncthing tailscale tealdeer zellij \
+    zsh zsh-autosuggestions zsh-syntax-highlighting
 
-#### Example for enabling a System Unit File
-
+# Enable a useful socket-enabled service example from the template
 systemctl enable podman.socket
