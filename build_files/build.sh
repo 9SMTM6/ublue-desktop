@@ -44,6 +44,11 @@ dnf5 install -y \
     git curl file fontconfig
 
 install_homebrew_fonts() {
+    if ! command -v brew >/dev/null 2>&1; then
+        export PATH="/root/.linuxbrew/bin:/root/.linuxbrew/sbin:${PATH}"
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+
     export PATH="/root/.linuxbrew/bin:/root/.linuxbrew/sbin:${PATH}"
     brew tap homebrew/cask-fonts
 
