@@ -40,7 +40,39 @@ dnf5 install -y \
     atuin bat chezmoi fd-find git-delta helix \
     kopia lsd nu podman-compose ripgrep rustup \
     starship syncthing tailscale tealdeer zellij \
-    zsh zsh-autosuggestions zsh-syntax-highlighting
+    zsh zsh-autosuggestions zsh-syntax-highlighting \
+    git curl file fontconfig
+
+install_homebrew_fonts() {
+    if ! command -v brew >/dev/null 2>&1; then
+        export PATH="/root/.linuxbrew/bin:/root/.linuxbrew/sbin:${PATH}"
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+
+    export PATH="/root/.linuxbrew/bin:/root/.linuxbrew/sbin:${PATH}"
+    brew tap homebrew/cask-fonts
+
+    fonts=(
+        font-caskaydia-mono-nerd-font
+        font-dejavu
+        font-dejavu-sans-mono-nerd-font
+        font-fira-mono-nerd-font
+        font-fira-sans
+        font-hack-nerd-font
+        font-inconsolata-nerd-font
+        font-inter
+        font-roboto-mono-nerd-font
+        font-source-sans-3
+    )
+
+    for font in "${fonts[@]}"; do
+        brew install --cask "$font"
+    done
+
+    fc-cache -f -v || true
+}
+
+install_homebrew_fonts
 
 # Enable a useful socket-enabled service example from the template
 systemctl enable podman.socket
