@@ -256,6 +256,22 @@ Runs shell check on all Bash scripts.
 
 Runs shfmt on all Bash scripts.
 
+## it87 kernel module
+
+The image builds the out-of-tree `it87-extras` driver from a pinned commit of upstream [frankcrawford/it87](https://github.com/frankcrawford/it87). Upstream names the module `it87`, so the build overrides the name to `it87-extras` to avoid colliding with the in-tree driver. It is compiled against the kernel shipped in the base image, installed into that kernel's `extra` module directory, and loaded at boot via `/usr/lib/modules-load.d/it87-extras.conf`. The in-tree `it87` driver is blacklisted so the out-of-tree driver handles supported ITE Super I/O chips.
+
+The upstream pin is checked by Renovate against upstream `master` in `.github/renovate.json5`; merging its PR triggers the normal image build. If Renovate is unavailable, update `IT87_COMMIT` in `build_files/build-it87.sh` manually, then rebuild and rebase the image.
+
+Secure Boot signing is not currently handled. If the module is used on a machine with Secure Boot enabled, its signing key must be enrolled with MOK or the module will be rejected. The module is tied to one exact kernel version, so it must be rebuilt whenever the Bazzite base image moves to a new kernel; the scheduled image builds do this automatically.
+
+### References
+
+- Build/install flow follows the unsigned [`grandpares/bazzite-it87` image build](https://github.com/grandpares/ublue-image/blob/main/Containerfile.bazzite.unsigned), especially [`build.bazzite.sh`](https://github.com/grandpares/ublue-image/blob/main/build.bazzite.sh) and [`postbuild.sh`](https://github.com/grandpares/ublue-image/blob/main/postbuild.sh): derive the target kernel from the installed `kernel` RPM, build against `/usr/src/kernels/$KERNEL`, install into the kernel's `extra` directory, run `depmod`, and load the module at boot with `modules-load.d`.
+- The `it87-extras` module name and `blacklist it87` come from [`grandpares/it87`](https://github.com/grandpares/it87/tree/bef2dd79af1c2d711e4f3d00df4f32b59a9a9669), specifically its [`Makefile`](https://github.com/grandpares/it87/blob/bef2dd79af1c2d711e4f3d00df4f32b59a9a9669/Makefile) and [`install/modprobe.conf`](https://github.com/grandpares/it87/blob/bef2dd79af1c2d711e4f3d00df4f32b59a9a9669/install/modprobe.conf).
+- The source itself is pinned from [upstream `frankcrawford/it87`](https://github.com/frankcrawford/it87/tree/51341bae34c332aa4e989fe12f5a09cbda0b79a9); the rename is applied via build variables rather than using the fork.
+- The reason this works in a container build is that Bazzite is a bootc image containing the kernel and matching headers; see the [Bazzite `Containerfile`](https://github.com/ublue-os/bazzite/blob/main/Containerfile).
+- Pin tracking uses Renovate's [`git-refs` datasource](https://docs.renovatebot.com/modules/datasource/git-refs/).
+
 ## Additional resources
 
 For additional driver support, ublue maintains a set of scripts and container images available at [ublue-akmod](https://github.com/ublue-os/akmods). These images include the necessary scripts to install multiple kernel drivers within the container (Nvidia, OpenRazer, Framework...). The documentation provides guidance on how to properly integrate these drivers into your container image.

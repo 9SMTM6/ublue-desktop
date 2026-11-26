@@ -6,6 +6,24 @@
 
   "rebaseWhen": "never",
 
+  // Follow upstream it87 master by updating the pinned commit SHA.
+  // The update still arrives as a Renovate PR for manual review.
+  // Pattern: https://docs.renovatebot.com/modules/datasource/git-refs/
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^build_files\\/build-it87\\.sh$/"],
+      "matchStrings": [
+        "IT87_COMMIT=\"(?<currentDigest>[a-f0-9]{40})\"",
+      ],
+      "currentValueTemplate": "master",
+      "depNameTemplate": "frankcrawford/it87",
+      "packageNameTemplate": "https://github.com/frankcrawford/it87",
+      "datasourceTemplate": "git-refs",
+      "versioningTemplate": "git",
+    },
+  ],
+
   "packageRules": [
     {
       "automerge": true,

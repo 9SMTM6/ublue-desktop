@@ -42,5 +42,12 @@ dnf5 install -y \
     starship syncthing tailscale tealdeer zellij \
     zsh zsh-autosuggestions zsh-syntax-highlighting
 
+# Build tools for the out-of-tree it87 kernel module.
+dnf5 group install -y development-tools
+
+# Build the module against the kernel shipped in the base image, then install
+# it so it loads at boot in place of the in-tree it87 driver.
+/ctx/build-it87.sh
+
 # Enable a useful socket-enabled service example from the template
 systemctl enable podman.socket
