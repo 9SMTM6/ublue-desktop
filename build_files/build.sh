@@ -39,7 +39,7 @@ EOF
 dnf5 install -y \
     atuin bat chezmoi fd-find git-delta helix \
     kopia lsd nu podman-compose ripgrep rustup \
-    starship syncthing tailscale tealdeer zellij \
+    starship syncthing tailscale zellij \
     zsh zsh-autosuggestions zsh-syntax-highlighting
 
 # Build tools for the out-of-tree it87 kernel module.
